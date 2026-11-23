@@ -1,0 +1,7 @@
+{% extends "auth/base_auth.html" %}
+{% block title %}Create account{% endblock %}
+{% block auth_eyebrow %}GET STARTED{% endblock %}
+{% block auth_title %}Create your analyst account{% endblock %}
+{% block auth_subtitle %}Scan your first file in under a minute.{% endblock %}
+{% block auth_actions %}<button class="btn btn-primary btn-block" type="submit">Create account</button>{% endblock %}
+{% block auth_footer %}<p class="auth-switch">Already registered? <a href="{% url 'accounts:login' %}">Sign in</a></p>{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Scan history{% endblock %}
+{% block breadcrumb %}Workspace / Scan History{% endblock %}
+{% block page_title %}Scan history{% endblock %}
+{% block content %}
+<section class="panel">
+  <div class="panel-head">
+    <div><span class="eyebrow">HISTORY</span><h3>All security scans</h3></div>
+    <div class="panel-actions">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+        <input type="search" id="scanSearch" placeholder="Filter scans..." autocomplete="off">
+      </div>
+      <a class="btn btn-primary btn-sm" href="{% url 'scan:upload' %}">+ New scan</a>
+    </div>
+  </div>
+
+  {% if scans %}
+    <div class="table-wrap">
+      <table class="data-table" id="scanTable">
+        <thead><tr><th>Name</th><th>Source</th><th>Status</th><th>Files</th><th>Findings</th><th>Score</th><th>Completed</th><th></th></tr></thead>
+        <tbody>
+          {% for scan in scans %}
+            <tr>
+              <td><strong>{{ scan.name }}</strong><span class="cell-sub">{{ scan.id|stringformat:"s"|slice:":8" }}</span></td>
+              <td><span class="code-chip">{{ scan.original_filename }}</span></td>
+              <td><span class="tag tag-{{ scan.status|lower }}">{{ scan.status }}</span></td>
+              <td>{{ scan.files_scanned }}</td>
+              <td>{{ scan.total_vulnerabilities }}</td>
+              <td><span class="score-pill">{{ scan.security_score }}</span></td>
+              <td>{{ scan.completed_at|date:"M d, Y H:i"|default:"—" }}</td>
+              <td><a class="icon-link" href="{% url 'scan:result' scan.pk %}">Open →</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if is_paginated %}
+      <div class="pagination">
+        {% if page_obj.has_previous %}<a class="btn btn-ghost btn-sm" href="?page={{ page_obj.previous_page_number }}">← Previous</a>{% endif %}
+        <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}<a class="btn btn-ghost btn-sm" href="?page={{ page_obj.next_page_number }}">Next →</a>{% endif %}
+      </div>
+    {% endif %}
+  {% else %}
+    {% include "core/empty_state.html" with title="No scans found" text="Upload source code to see security findings and score trends here." action_url="/scan/upload/" action_label="Create first scan" %}
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Reports{% endblock %}
+{% block breadcrumb %}Security / Reports{% endblock %}
+{% block page_title %}Generated reports{% endblock %}
+{% block content %}
+<section class="panel">
+  <div class="panel-head">
+    <div><span class="eyebrow">AUDIT TRAIL</span><h3>PDF reports and JSON exports</h3></div>
+    <a class="btn btn-primary btn-sm" href="{% url 'scan:list' %}">Generate from scan</a>
+  </div>
+
+  {% if reports %}
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Filename</th><th>Scan</th><th>Format</th><th>Generated</th><th></th></tr></thead>
+        <tbody>
+          {% for report in reports %}
+            <tr>
+              <td><strong>{{ report.filename }}</strong></td>
+              <td><a class="text-link" href="{% url 'scan:result' report.scan.pk %}">{{ report.scan.name }}</a></td>
+              <td><span class="tag {% if report.format == 'PDF' %}tag-pdf{% else %}tag-cyan{% endif %}">{{ report.format }}</span></td>
+              <td>{{ report.created_at|date:"M d, Y H:i" }}</td>
+              <td><a class="icon-link" href="{% url 'reports:download' report.pk %}">Download →</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if is_paginated %}
+      <div class="pagination">
+        {% if page_obj.has_previous %}<a class="btn btn-ghost btn-sm" href="?page={{ page_obj.previous_page_number }}">← Previous</a>{% endif %}
+        <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}<a class="btn btn-ghost btn-sm" href="?page={{ page_obj.next_page_number }}">Next →</a>{% endif %}
+      </div>
+    {% endif %}
+  {% else %}
+    {% include "core/empty_state.html" with title="No reports generated" text="Open a completed scan and generate a PDF report or JSON export." action_url="/scan/list/" action_label="View scans" %}
+  {% endif %}
+</section>
+{% endblock %}

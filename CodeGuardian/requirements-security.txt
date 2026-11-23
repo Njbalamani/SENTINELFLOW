@@ -1,0 +1,2 @@
+# Optional local Semgrep rules engine. Core scanning works without it.
+semgrep>=1.60,<2

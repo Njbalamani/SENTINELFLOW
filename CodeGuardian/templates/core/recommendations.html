@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Secure guidelines{% endblock %}
+{% block breadcrumb %}Security / Guidelines{% endblock %}
+{% block page_title %}Secure coding guidelines{% endblock %}
+{% block content %}
+<div class="page-intro">
+  <div>
+    <span class="eyebrow">REFERENCE LIBRARY</span>
+    <h3>OWASP-aligned secure development practices</h3>
+    <p>Use these guidelines while remediating findings. Examples are illustrative and should be adapted to your framework and threat model.</p>
+  </div>
+  <a class="btn btn-ghost" href="{% url 'scan:upload' %}">Scan a file</a>
+</div>
+
+<div class="guideline-grid">
+  {% for item in recommendations %}
+    <article class="guideline-card animate-in">
+      <div class="guideline-top">
+        <span class="owasp-chip">{{ item.owasp }}</span>
+        <span class="guideline-index">{{ forloop.counter|stringformat:"02d" }}</span>
+      </div>
+      <h3>{{ item.title }}</h3>
+      <p>{{ item.summary }}</p>
+      <ul>
+        {% for guideline in item.guidelines %}<li>{{ guideline }}</li>{% endfor %}
+      </ul>
+      <pre><code>{{ item.secure_example }}</code></pre>
+    </article>
+  {% endfor %}
+</div>
+{% endblock %}

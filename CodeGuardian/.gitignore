@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+db.sqlite3
+logs/*.log
+media/uploads/*
+!media/uploads/.gitkeep
+media/reports/*
+!media/reports/.gitkeep
+staticfiles/
+.coverage
+htmlcov/
+.DS_Store

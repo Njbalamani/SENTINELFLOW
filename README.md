@@ -17,6 +17,15 @@
 
 ---
 
+## Repository contents
+
+| Folder | Description |
+| --- | --- |
+| [`SENTINELFLOW/`](SENTINELFLOW/README.md) | AI-powered insider threat detection system built with Django, hybrid ML detection, alerts, investigations, and PDF evidence reports. |
+| [`CodeGuardian/`](CodeGuardian/README.md) | AI-powered secure code review platform built with Django and REST API, static analysis, OWASP mapping, severity scoring, and PDF/JSON reports. |
+
+---
+
 ## Contents
 
 1. [Overview](#1-overview)
