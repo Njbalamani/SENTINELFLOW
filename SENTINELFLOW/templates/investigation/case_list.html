@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block breadcrumb %}Operations / Investigations{% endblock %}
+{% block page_title %}Investigation Cases{% endblock %}
+{% block content %}
+<div class="page-head animate-in"><div><h1>Investigation Cases</h1><p>Structured incident handling from alert to conclusion</p></div>
+  <div class="page-actions"><a class="btn btn-primary btn-sm" href="{% url 'investigation:create' %}">+ New case</a></div>
+</div>
+<section class="card animate-in">
+  <form method="get" class="filter-bar">
+    <div class="form-group"><label for="status">Status</label><select class="form-control" name="status" id="status"><option value="">All statuses</option>
+      {% for value, label in statuses %}<option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+    <div class="form-group"><button class="btn btn-primary" type="submit">Filter</button></div>
+  </form>
+  <div class="table-wrap">
+    <table class="data-table"><thead><tr><th>Case</th><th>Subject</th><th>Priority</th><th>Status</th><th>Analyst</th><th>Opened</th><th></th></tr></thead><tbody>
+      {% for case in cases %}
+      <tr>
+        <td class="strong">{{ case.short_id }}<span class="cell-sub">{{ case.title|truncatechars:42 }}</span></td>
+        <td>@{{ case.subject.username|default:"—" }}</td>
+        <td><span class="badge {% if case.priority == 'CRITICAL' %}critical{% elif case.priority == 'HIGH' %}danger{% elif case.priority == 'MEDIUM' %}warning{% else %}muted{% endif %}">{{ case.priority }}</span></td>
+        <td><span class="badge {{ case.status_class }}">{{ case.status }}</span></td>
+        <td>{{ case.assigned_to.username|default:"Unassigned" }}</td>
+        <td class="nowrap">{{ case.created_at|date:"M d, H:i" }}</td>
+        <td class="right"><a class="btn btn-ghost btn-sm" href="{% url 'investigation:detail' pk=case.pk %}">Open</a></td>
+      </tr>
+      {% empty %}<tr><td colspan="7">{% include "includes/empty.html" %}</td></tr>{% endfor %}
+    </tbody></table>
+  </div>
+  {% include "includes/pagination.html" %}
+</section>
+{% endblock %}

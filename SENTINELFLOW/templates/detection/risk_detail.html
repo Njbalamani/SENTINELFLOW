@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block breadcrumb %}Operations / Risk Profiles / {{ profile.user.username }}{% endblock %}
+{% block page_title %}{{ profile.user.display_name }}{% endblock %}
+{% block content %}
+<div class="page-head animate-in">
+  <div><h1>Risk profile — {{ profile.user.display_name }}</h1><p>@{{ profile.user.username }} · {{ profile.user.get_department_display }} · last calculated {{ profile.last_calculated|date:"M d, H:i" }}</p></div>
+  <div class="page-actions">
+    <a class="btn btn-primary btn-sm" href="{% url 'reports:generate' %}">Export assessment</a>
+    <a class="btn btn-ghost btn-sm" href="{% url 'detection:risk-list' %}">← All profiles</a>
+  </div>
+</div>
+<div class="grid grid-4 mb-4">
+  <div class="card stat-card tone-red animate-in"><div class="stat-top"><span class="stat-label">Risk score</span></div><div class="stat-value">{{ profile.risk_score|floatformat:1 }}</div><div class="progress"><span style="width:{{ profile.risk_score }}%"></span></div></div>
+  <div class="card stat-card tone-amber animate-in delay-1"><div class="stat-top"><span class="stat-label">Risk level</span></div><div class="stat-value" style="font-size:1.2rem;margin-top:18px"><span class="badge {{ profile.level_class }}">{{ profile.risk_level }}</span></div></div>
+  <div class="card stat-card tone-blue animate-in delay-2"><div class="stat-top"><span class="stat-label">30-day detections</span></div><div class="stat-value">{{ profile.total_activities }}</div><div class="stat-foot">{{ profile.suspicious_count }} suspicious · {{ profile.critical_count }} critical</div></div>
+  <div class="card stat-card tone-cyan animate-in delay-3"><div class="stat-top"><span class="stat-label">Failed logins / downloads</span></div><div class="stat-value">{{ profile.failed_logins_24h }} / {{ profile.downloads_24h }}</div></div>
+</div>
+<div class="grid grid-main">
+  <section class="card animate-in">
+    <div class="card-head"><div><h3>Activity timeline</h3><div class="sub">Most recent monitored events and their AI classification</div></div></div>
+    <div class="card-body">
+      <div class="timeline">
+        {% for item in timeline %}
+        <div class="timeline-item {{ item.classification|lower }}">
+          <div class="flex spread"><strong>{{ item.type }}</strong><span class="badge {% if item.classification == 'CRITICAL' %}critical{% elif item.classification == 'SUSPICIOUS' %}warning{% else %}success{% endif %}">{{ item.classification }}</span></div>
+          <div class="timeline-meta">{{ item.timestamp|date:"M d, Y H:i" }} · risk {{ item.risk_score|floatformat:0 }} · {{ item.resource|default:"no resource"|truncatechars:60 }}</div>
+        </div>
+        {% empty %}
+        {% include "includes/empty.html" with message="No activity recorded for this user." %}
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  <section class="card animate-in delay-1">
+    <div class="card-head"><h3>Related alerts</h3></div>
+    <div class="table-wrap"><table class="data-table"><thead><tr><th>Alert</th><th>Severity</th></tr></thead><tbody>
+      {% for alert in alerts %}<tr><td><a href="{% url 'alerts:detail' pk=alert.pk %}">{{ alert.title|truncatechars:50 }}</a></td><td><span class="badge {{ alert.severity_class }}">{{ alert.severity }}</span></td></tr>
+      {% empty %}<tr><td colspan="2">{% include "includes/empty.html" with message="No alerts for this user." %}</td></tr>{% endfor %}
+    </tbody></table></div>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block breadcrumb %}Operations / Investigations / {{ case.short_id }}{% endblock %}
+{% block page_title %}Case {{ case.short_id }}{% endblock %}
+{% block content %}
+<div class="page-head animate-in">
+  <div><h1>{{ case.title }}</h1><p>Case ID {{ case.case_id }} · opened {{ case.created_at|date:"F d, Y H:i" }}</p></div>
+  <div class="page-actions"><span class="badge {{ case.status_class }}">{{ case.status }}</span><a class="btn btn-primary btn-sm" href="{% url 'reports:generate' %}">Export report</a></div>
+</div>
+<div class="grid grid-main">
+  <section class="card animate-in">
+    <div class="card-head"><h3>Case details</h3></div>
+    <div class="card-body">
+      <dl class="kv">
+        <dt>Subject</dt><dd>@{{ case.subject.username|default:"—" }}</dd>
+        <dt>Priority</dt><dd>{{ case.priority }}</dd>
+        <dt>Assigned analyst</dt><dd>{{ case.assigned_to.display_name|default:"Unassigned" }}</dd>
+        <dt>Linked alert</dt><dd>{% if case.alert %}<a href="{% url 'alerts:detail' pk=case.alert.pk %}">{{ case.alert.title|truncatechars:50 }}</a>{% else %}—{% endif %}</dd>
+        <dt>Findings</dt><dd>{{ case.findings|default:"—" }}</dd>
+        <dt>Conclusion</dt><dd>{{ case.conclusion|default:"Investigation in progress." }}</dd>
+      </dl>
+      <h3 class="section-title">Evidence activities</h3>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>Time</th><th>Activity</th><th>Resource</th><th>Risk</th></tr></thead><tbody>
+        {% for activity in activities %}<tr><td>{{ activity.timestamp|date:"M d H:i" }}</td><td>{{ activity.get_activity_type_display }}</td><td>{{ activity.resource|truncatechars:35 }}</td><td>{{ activity.detection.risk_score|default:0|floatformat:0 }}</td></tr>
+        {% empty %}<tr><td colspan="4">{% include "includes/empty.html" with message="No evidence linked." %}</td></tr>{% endfor %}
+      </tbody></table></div>
+    </div>
+  </section>
+  <div>
+    <section class="card animate-in delay-1 mb-4">
+      <div class="card-head"><h3>Case notes</h3></div>
+      <div class="card-body">
+        {% for note in timeline %}<div class="note-item"><div class="timeline-meta">{{ note.created_at|date:"M d H:i" }} · {{ note.author.username|default:"system" }}</div>{{ note.note }}</div>{% empty %}<p class="text-muted">No notes recorded.</p>{% endfor %}
+        <form method="post" class="mt-4">{% csrf_token %}<input type="hidden" name="action" value="note">{{ note_form.note }}<div style="margin-top:10px"><button class="btn btn-primary btn-sm" type="submit">Add note</button></div></form>
+      </div>
+    </section>
+    <section class="card animate-in delay-1">
+      <div class="card-head"><h3>Case management</h3></div>
+      <div class="card-body">
+        <form method="post" novalidate>{% csrf_token %}
+          {% for field in update_form %}<div class="form-group"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for error in field.errors %}<ul class="errorlist"><li>{{ error }}</li></ul>{% endfor %}</div>{% endfor %}
+          <button class="btn btn-primary btn-sm" type="submit" name="action" value="update">Save changes</button>
+          <button class="btn btn-danger btn-sm" type="submit" name="action" value="close" data-confirm="Close this case and resolve the linked alert?">Close case</button>
+        </form>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}

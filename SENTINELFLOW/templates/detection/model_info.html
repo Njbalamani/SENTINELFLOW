@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block breadcrumb %}System / ML Models{% endblock %}
+{% block page_title %}Detection Models{% endblock %}
+{% block content %}
+<div class="page-head animate-in"><div><h1>Detection Models</h1><p>Hybrid ensemble registry and training metadata</p></div>
+  <div class="page-actions"><a class="btn btn-primary btn-sm" href="{% url 'reports:generate' %}">Export risk report</a></div>
+</div>
+<div class="grid grid-2 mb-4">
+  <section class="card animate-in">
+    <div class="card-head"><h3>Active ensemble</h3><span class="pulse"></span></div>
+    <div class="card-body">
+      {% if metadata %}
+      <dl class="kv">
+        <dt>Classifier</dt><dd class="mono-sm">RandomForestClassifier</dd>
+        <dt>Anomaly detector</dt><dd class="mono-sm">IsolationForest</dd>
+        <dt>Training samples</dt><dd>{{ metadata.samples }}</dd>
+        <dt>Accuracy</dt><dd>{{ metadata.accuracy|floatformat:3 }}</dd>
+        <dt>Weighted F1</dt><dd>{{ metadata.weighted_f1|floatformat:3 }}</dd>
+        <dt>Features</dt><dd>{{ metadata.features|length }}</dd>
+        <dt>Trained at</dt><dd>{{ metadata.trained_at }}</dd>
+        <dt>Artifact directory</dt><dd class="mono-sm">{{ artifact_dir }}</dd>
+      </dl>
+      {% else %}
+        {% include "includes/empty.html" with message="No trained artifacts found — rule-based scoring is active. Run: python manage.py train_models" %}
+      {% endif %}
+    </div>
+  </section>
+  <section class="card animate-in delay-1">
+    <div class="card-head"><h3>Training runs</h3></div>
+    <div class="table-wrap"><table class="data-table"><thead><tr><th>Model</th><th>Samples</th><th>Accuracy</th><th>Active</th></tr></thead><tbody>
+      {% for run in runs %}<tr><td class="mono-sm">{{ run.model_name }}</td><td>{{ run.samples }}</td><td>{{ run.accuracy|floatformat:3 }}</td><td>{% if run.is_active %}<span class="badge success">Active</span>{% else %}<span class="badge muted">No</span>{% endif %}</td></tr>
+      {% empty %}<tr><td colspan="4">{% include "includes/empty.html" %}</td></tr>{% endfor %}
+    </tbody></table></div>
+    <div class="card-body"><small>Retrain with <code>python manage.py train_models --regenerate</code></small></div>
+  </section>
+</div>
+{% endblock %}

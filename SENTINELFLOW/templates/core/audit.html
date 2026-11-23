@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block breadcrumb %}System / Audit Trail{% endblock %}
+{% block page_title %}Audit Trail{% endblock %}
+{% block content %}
+<div class="page-head animate-in"><div><h1>Audit Trail</h1><p>Immutable record of security-relevant actions across the platform</p></div></div>
+<section class="card animate-in">
+  <form method="get" class="filter-bar">
+    <div class="form-group"><label for="action">Action</label><select name="action" id="action" class="form-control"><option value="">All actions</option>{% for value, label in actions %}<option value="{{ value }}" {% if request.GET.action == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+    <div class="form-group"><button class="btn btn-primary" type="submit">Filter</button></div>
+  </form>
+  <div class="table-wrap"><table class="data-table"><thead><tr><th>Time</th><th>Actor</th><th>Action</th><th>Entity</th><th>IP</th><th>Details</th></tr></thead><tbody>
+    {% for log in logs %}
+    <tr>
+      <td class="nowrap">{{ log.created_at|date:"M d, H:i:s" }}</td>
+      <td>{% if log.actor %}{{ log.actor.username }}{% else %}{{ log.actor_username|default:"system" }}{% endif %}</td>
+      <td><span class="badge {% if log.action == 'DENIED' %}critical{% elif log.action == 'STATUS_CHANGE' %}warning{% else %}info{% endif %}">{{ log.get_action_display }}</span></td>
+      <td class="mono-sm">{{ log.entity_type }}{% if log.entity_id %} #{{ log.entity_id|truncatechars:18 }}{% endif %}</td>
+      <td class="mono-sm">{{ log.ip_address|default:"—" }}</td>
+      <td class="mono-sm">{{ log.details|stringformat:"s"|truncatechars:70 }}</td>
+    </tr>
+    {% empty %}<tr><td colspan="6">{% include "includes/empty.html" with message="No audit entries found." %}</td></tr>{% endfor %}
+  </tbody></table></div>
+  {% include "includes/pagination.html" %}
+</section>
+{% endblock %}

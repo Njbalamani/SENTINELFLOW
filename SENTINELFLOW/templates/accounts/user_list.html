@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block breadcrumb %}System / User Management{% endblock %}
+{% block page_title %}User Management{% endblock %}
+{% block content %}
+<div class="page-head animate-in"><div><h1>User Management</h1><p>Role-based access control for administrators, analysts and viewers</p></div>
+  <div class="page-actions"><a class="btn btn-primary btn-sm" href="{% url 'accounts:register' %}">+ Provision user</a></div>
+</div>
+<section class="card animate-in">
+  <div class="table-wrap"><table class="data-table"><thead><tr><th>User</th><th>Role</th><th>Department</th><th>Employee ID</th><th>Risk</th><th>Status</th><th>Last login</th><th></th></tr></thead><tbody>
+    {% for user in users %}
+    <tr>
+      <td class="strong">{{ user.display_name }}<span class="cell-sub">@{{ user.username }} · {{ user.email|default:"no email" }}</span></td>
+      <td><span class="badge {% if user.role == 'ADMIN' %}critical{% elif user.role == 'ANALYST' %}info{% else %}muted{% endif %}">{{ user.get_role_display }}</span></td>
+      <td>{{ user.get_department_display }}</td>
+      <td class="mono-sm">{{ user.employee_id|default:"—" }}</td>
+      <td>{% if user.risk_profile %}<span class="badge {{ user.risk_profile.level_class }}">{{ user.risk_profile.risk_level }}</span>{% else %}<span class="badge muted">N/A</span>{% endif %}</td>
+      <td>{% if user.is_active %}<span class="badge success">Active</span>{% else %}<span class="badge muted">Disabled</span>{% endif %}</td>
+      <td class="nowrap">{{ user.last_login|date:"M d, H:i"|default:"Never" }}</td>
+      <td class="right">
+        {% if user.pk != request.user.pk %}
+        <form method="post" action="{% url 'accounts:user-toggle' pk=user.pk %}" data-confirm="Change active status for {{ user.username }}?">{% csrf_token %}
+          <button class="btn btn-ghost btn-sm" type="submit">{% if user.is_active %}Disable{% else %}Enable{% endif %}</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% empty %}<tr><td colspan="8">{% include "includes/empty.html" %}</td></tr>{% endfor %}
+  </tbody></table></div>
+  {% include "includes/pagination.html" %}
+</section>
+{% endblock %}

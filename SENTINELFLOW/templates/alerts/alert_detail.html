@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block breadcrumb %}Operations / Security Alerts / #{{ alert.pk }}{% endblock %}
+{% block page_title %}Alert #{{ alert.pk }}{% endblock %}
+{% block content %}
+<div class="page-head animate-in">
+  <div><h1>{{ alert.title }}</h1><p>Raised {{ alert.created_at|date:"F d, Y H:i:s" }} · subject @{{ alert.user.username }}</p></div>
+  <div class="page-actions">
+    <span class="badge {{ alert.severity_class }}">{{ alert.severity }}</span>
+    <span class="badge {{ alert.status_class }}">{{ alert.status }}</span>
+    <a class="btn btn-primary btn-sm" href="{% url 'reports:generate' %}">PDF report</a>
+  </div>
+</div>
+<div class="grid grid-main">
+  <section class="card animate-in">
+    <div class="card-head"><h3>Alert analysis</h3></div>
+    <div class="card-body">
+      <p>{{ alert.description }}</p>
+      <dl class="kv">
+        <dt>Risk score</dt><dd><span class="risk-score">{{ alert.risk_score|floatformat:1 }}</span> / 100</dd>
+        <dt>Subject</dt><dd><a href="{% url 'detection:risk-list' %}">@{{ alert.user.username }}</a></dd>
+        <dt>Assigned analyst</dt><dd>{{ alert.assigned_to.display_name|default:"Unassigned" }}</dd>
+        <dt>Source activity</dt><dd>{% if alert.activity %}<a href="{% url 'monitoring:detail' pk=alert.activity.pk %}">#{{ alert.activity.pk }} · {{ alert.activity.get_activity_type_display }}</a>{% else %}—{% endif %}</dd>
+        <dt>Detection</dt><dd>{% if alert.detection %}<a href="{% url 'detection:detail' pk=alert.detection.pk %}">#{{ alert.detection.pk }} · {{ alert.detection.model_name }}</a>{% else %}—{% endif %}</dd>
+        <dt>Last updated</dt><dd>{{ alert.updated_at|date:"M d, Y H:i" }}</dd>
+      </dl>
+      <h3 class="section-title">Evidence</h3>
+      <dl class="kv">
+        {% for key, value in alert.evidence.items %}<dt class="mono-sm">{{ key }}</dt><dd class="mono-sm">{{ value }}</dd>{% endfor %}
+      </dl>
+    </div>
+  </section>
+  <div>
+    <section class="card animate-in delay-1 mb-4">
+      <div class="card-head"><h3>Investigation</h3></div>
+      <div class="card-body">
+        {% if case %}
+          <p>Linked case: <a href="{% url 'investigation:detail' pk=case.pk %}">{{ case.short_id }} — {{ case.title|truncatechars:40 }}</a></p>
+          <span class="badge {{ case.status_class }}">{{ case.status }}</span>
+        {% else %}
+          <p class="text-muted">No investigation case is linked to this alert.</p>
+          <form method="post">{% csrf_token %}<input type="hidden" name="action" value="investigate"><button class="btn btn-primary btn-block" type="submit">Open investigation case</button></form>
+        {% endif %}
+      </div>
+    </section>
+    <section class="card animate-in delay-1">
+      <div class="card-head"><h3>Update status</h3></div>
+      <div class="card-body">
+        <form method="post" novalidate>
+          {% csrf_token %}<input type="hidden" name="action" value="update">
+          {% for field in status_form %}<div class="form-group"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for error in field.errors %}<ul class="errorlist"><li>{{ error }}</li></ul>{% endfor %}</div>{% endfor %}
+          <button class="btn btn-primary btn-block" type="submit">Save status</button>
+        </form>
+      </div>
+    </section>
+  </div>
+</div>
+<section class="card mt-4 animate-in">
+  <div class="card-head"><h3>Investigation notes</h3><div class="sub">{{ notes|length }} notes</div></div>
+  <div class="card-body">
+    {% for note in notes %}<div class="note-item"><div class="timeline-meta">{{ note.created_at|date:"M d, Y H:i" }} · {{ note.author.username|default:"system" }}</div>{{ note.note }}</div>{% empty %}<p class="text-muted">No notes yet.</p>{% endfor %}
+    <form method="post" class="mt-4">{% csrf_token %}<input type="hidden" name="action" value="note">
+      {{ note_form.note }}
+      <div style="margin-top:10px"><button class="btn btn-primary btn-sm" type="submit">Add note</button></div>
+    </form>
+  </div>
+</section>
+{% endblock %}

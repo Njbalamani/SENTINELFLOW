@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block breadcrumb %}Operations / AI Detections / #{{ result.pk }}{% endblock %}
+{% block page_title %}Detection #{{ result.pk }}{% endblock %}
+{% block content %}
+<div class="page-head animate-in"><div><h1>Detection report</h1><p>Evaluated {{ result.created_at|date:"F d, Y H:i:s" }}</p></div></div>
+<div class="grid grid-main">
+  <section class="card animate-in">
+    <div class="card-head"><h3>Model output</h3><span class="badge {{ result.severity_class }}">{{ result.classification }}</span></div>
+    <div class="card-body">
+      <dl class="kv">
+        <dt>Subject</dt><dd><a href="{% url 'detection:risk-list' %}">{{ result.user.username }}</a></dd>
+        <dt>Risk score</dt><dd><span class="risk-score">{{ result.risk_score|floatformat:2 }}</span> / 100</dd>
+        <dt>Anomaly index</dt><dd>{{ result.anomaly_score|floatformat:4 }}</dd>
+        <dt>Confidence</dt><dd>{{ result.confidence|floatformat:3 }}</dd>
+        <dt>Model ensemble</dt><dd class="mono-sm">{{ result.model_name }}</dd>
+        <dt>Models agreed</dt><dd>{% if result.models_agreed is None %}N/A{% elif result.models_agreed %}<span class="badge success">Yes</span>{% else %}<span class="badge warning">No</span>{% endif %}</dd>
+        <dt>Source activity</dt><dd><a href="{% url 'monitoring:detail' pk=result.activity_id %}">#{{ result.activity_id }} — {{ result.activity.get_activity_type_display }}</a></dd>
+      </dl>
+      <h3 class="section-title">Explainability signals</h3>
+      <div class="timeline">
+        {% for reason in result.reasons %}<div class="timeline-item {{ result.classification|lower }}"><div>{{ reason }}</div></div>{% empty %}<div class="timeline-item"><div>No anomalous signals recorded.</div></div>{% endfor %}
+      </div>
+    </div>
+  </section>
+  <section class="card animate-in delay-1">
+    <div class="card-head"><h3>Feature vector</h3><div class="sub">Values used for inference</div></div>
+    <div class="card-body">
+      <dl class="kv">
+        {% for key, value in result.features.items %}<dt class="mono-sm">{{ key }}</dt><dd class="mono-sm">{{ value }}</dd>{% endfor %}
+      </dl>
+    </div>
+  </section>
+</div>
+{% if alerts %}
+<section class="card mt-4 animate-in">
+  <div class="card-head"><h3>Alerts generated from this detection</h3></div>
+  <div class="table-wrap"><table class="data-table"><thead><tr><th>Alert</th><th>Severity</th><th>Status</th></tr></thead><tbody>
+    {% for alert in alerts %}<tr><td><a href="{% url 'alerts:detail' pk=alert.pk %}">{{ alert.title }}</a></td><td><span class="badge {{ alert.severity_class }}">{{ alert.severity }}</span></td><td><span class="badge {{ alert.status_class }}">{{ alert.status }}</span></td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block breadcrumb %}Operations / Activity Monitor / #{{ activity.pk }}{% endblock %}
+{% block page_title %}Activity #{{ activity.pk }}{% endblock %}
+{% block content %}
+<div class="page-head animate-in">
+  <div><h1>Activity detail</h1><p>Recorded {{ activity.timestamp|date:"F d, Y H:i:s" }}</p></div>
+  <div class="page-actions"><a class="btn btn-ghost btn-sm" href="{% url 'monitoring:list' %}">← Back to activity log</a></div>
+</div>
+<div class="grid grid-main">
+  <section class="card animate-in">
+    <div class="card-head"><h3>Event record</h3><span class="pill">{{ activity.source }}</span></div>
+    <div class="card-body">
+      <dl class="kv">
+        <dt>User</dt><dd>{{ activity.user.display_name }} (@{{ activity.user.username }})</dd>
+        <dt>Activity type</dt><dd>{{ activity.get_activity_type_display }}</dd>
+        <dt>Timestamp</dt><dd>{{ activity.timestamp|date:"F d, Y H:i:s" }}</dd>
+        <dt>Resource</dt><dd class="mono-sm">{{ activity.resource|default:"—" }}</dd>
+        <dt>Description</dt><dd>{{ activity.action_detail|default:"—" }}</dd>
+        <dt>Bytes transferred</dt><dd>{{ activity.bytes_transferred }} ({{ activity.human_size }})</dd>
+        <dt>IP address</dt><dd class="mono-sm">{{ activity.ip_address|default:"—" }}</dd>
+        <dt>User agent</dt><dd>{{ activity.user_agent|default:"—" }}</dd>
+        <dt>Session key</dt><dd class="mono-sm">{{ activity.session_key|default:"—" }}</dd>
+        <dt>Off-hours</dt><dd>{% if activity.is_off_hours %}<span class="badge warning">Yes</span>{% else %}<span class="badge success">No</span>{% endif %}</dd>
+        <dt>Unusual location</dt><dd>{% if activity.is_unusual_location %}<span class="badge danger">Yes</span>{% else %}<span class="badge success">No</span>{% endif %}</dd>
+      </dl>
+    </div>
+  </section>
+  <section class="card animate-in delay-1">
+    <div class="card-head"><h3>AI assessment</h3></div>
+    <div class="card-body">
+      {% if detection %}
+        <p><span class="badge {{ detection.severity_class }}">{{ detection.classification }}</span></p>
+        <dl class="kv">
+          <dt>Risk score</dt><dd><span class="risk-score">{{ detection.risk_score|floatformat:1 }}</span> / 100</dd>
+          <dt>Anomaly index</dt><dd>{{ detection.anomaly_score|floatformat:3 }}</dd>
+          <dt>Confidence</dt><dd>{{ detection.confidence|floatformat:2 }}</dd>
+          <dt>Model</dt><dd class="mono-sm">{{ detection.model_name }}</dd>
+          <dt>Evaluated</dt><dd>{{ detection.created_at|date:"M d, Y H:i" }}</dd>
+        </dl>
+        <h3 class="section-title">Signals</h3>
+        <ul>{% for reason in detection.reasons %}<li>{{ reason }}</li>{% endfor %}</ul>
+        <a class="btn btn-primary btn-sm" href="{% url 'detection:detail' pk=detection.pk %}">Full detection report →</a>
+      {% else %}
+        {% include "includes/empty.html" with message="This activity has not been analysed yet." %}
+      {% endif %}
+    </div>
+  </section>
+</div>
+{% endblock %}

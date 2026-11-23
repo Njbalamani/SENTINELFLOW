@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block breadcrumb %}System / My Profile{% endblock %}
+{% block page_title %}My Profile{% endblock %}
+{% block content %}
+<div class="page-head animate-in"><div><h1>Profile settings</h1><p>{{ user.username }} · {{ user.get_role_display }}</p></div></div>
+<div class="grid grid-2">
+  <section class="card animate-in">
+    <div class="card-head"><h3>Account details</h3></div>
+    <div class="card-body" style="padding-top:18px">
+      <form method="post" novalidate>{% csrf_token %}
+        {% for field in form %}<div class="form-group"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for error in field.errors %}<ul class="errorlist"><li>{{ error }}</li></ul>{% endfor %}</div>{% endfor %}
+        <button class="btn btn-primary" type="submit">Save profile</button>
+      </form>
+    </div>
+  </section>
+  <section class="card animate-in delay-1">
+    <div class="card-head"><h3>Security posture</h3></div>
+    <div class="card-body">
+      {% if profile %}
+      <dl class="kv">
+        <dt>Current risk level</dt><dd><span class="badge {{ profile.level_class }}">{{ profile.risk_level }}</span></dd>
+        <dt>Risk score</dt><dd>{{ profile.risk_score|floatformat:1 }} / 100</dd>
+        <dt>Last activity</dt><dd>{{ profile.last_activity_at|date:"M d, Y H:i"|default:"—" }}</dd>
+        <dt>Member since</dt><dd>{{ user.date_joined|date:"M d, Y" }}</dd>
+      </dl>
+      {% else %}<p class="text-muted">No risk profile has been calculated for this account.</p>{% endif %}
+      <div class="alert info" style="margin-top:18px">Passwords are hashed with Django's PBKDF2 hasher. Contact an administrator to rotate credentials.</div>
+    </div>
+  </section>
+</div>
+{% endblock %}

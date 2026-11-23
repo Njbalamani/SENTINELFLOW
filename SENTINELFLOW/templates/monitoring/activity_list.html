@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block breadcrumb %}Operations / Activity Monitor{% endblock %}
+{% block page_title %}Activity Monitor{% endblock %}
+{% block content %}
+<div class="page-head animate-in">
+  <div><h1>Activity Monitor</h1><p>Login, file access, download and privilege events recorded across the environment</p></div>
+  <div class="page-actions">
+    {% if is_admin %}<a class="btn btn-primary btn-sm" href="{% url 'monitoring:create' %}">+ Record activity</a>{% endif %}
+  </div>
+</div>
+<section class="card animate-in">
+  <form method="get" class="filter-bar">
+    {% for field in filter_form %}
+      <div class="form-group"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}</div>
+    {% endfor %}
+    <div class="form-group"><button class="btn btn-primary" type="submit">Apply filters</button></div>
+  </form>
+  <div class="card-head">
+    <div><h3>Activity log</h3><div class="sub">{{ paginator.count }} matching events</div></div>
+    <input type="text" class="form-control" style="max-width:230px" placeholder="Search this page..." data-table-search="activityTable">
+  </div>
+  <div class="table-wrap">
+    <table class="data-table" id="activityTable">
+      <thead><tr><th>Time</th><th>User</th><th>Activity</th><th>Resource</th><th>Source IP</th><th>Detection</th><th></th></tr></thead>
+      <tbody>
+        {% for activity in activities %}
+        <tr>
+          <td class="nowrap">{{ activity.timestamp|date:"M d, H:i" }}<span class="cell-sub">{{ activity.timestamp|date:"Y" }}</span></td>
+          <td class="strong">{{ activity.user.username }}</td>
+          <td><span class="pill">{{ activity.get_activity_type_display }}</span>{% if activity.is_off_hours %}<span class="cell-sub text-warning">Off-hours</span>{% endif %}</td>
+          <td>{{ activity.resource|default:"—"|truncatechars:42 }}{% if activity.bytes_transferred %}<span class="cell-sub">{{ activity.human_size }} transferred</span>{% endif %}</td>
+          <td class="mono-sm">{{ activity.ip_address|default:"—" }}</td>
+          <td>
+            {% if activity.detection %}
+              <a href="{% url 'detection:detail' pk=activity.detection.pk %}"><span class="badge {{ activity.detection.severity_class }}">{{ activity.detection.classification }}</span></a>
+              <span class="cell-sub">score {{ activity.detection.risk_score|floatformat:0 }}</span>
+            {% else %}<span class="badge muted">Pending</span>{% endif %}
+          </td>
+          <td class="right"><a class="btn btn-ghost btn-sm" href="{% url 'monitoring:detail' pk=activity.pk %}">Open</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7">{% include "includes/empty.html" %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include "includes/pagination.html" %}
+</section>
+{% endblock %}

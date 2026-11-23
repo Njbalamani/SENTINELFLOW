@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block breadcrumb %}Overview / Behavioural Analytics{% endblock %}
+{% block page_title %}Behavioural Analytics{% endblock %}
+{% block content %}
+{{ chart_data|json_script:"chart-data" }}
+<div class="page-head animate-in">
+  <div><h1>Behavioural Analytics</h1><p>Aggregate signals computed directly from monitored activity and ML results</p></div>
+  <div class="page-actions">
+    <a class="btn btn-ghost btn-sm" href="?days=7">7 days</a>
+    <a class="btn btn-ghost btn-sm" href="?days=30">30 days</a>
+    <a class="btn btn-ghost btn-sm" href="?days=90">90 days</a>
+    <a class="btn btn-primary btn-sm" href="{% url 'reports:generate' %}">Export analysis</a>
+  </div>
+</div>
+<div class="grid grid-4 mb-4">
+  <div class="card stat-card tone-blue animate-in"><div class="stat-top"><span class="stat-label">Events analysed</span></div><div class="stat-value">{{ stats.total_activities }}</div></div>
+  <div class="card stat-card tone-amber animate-in delay-1"><div class="stat-top"><span class="stat-label">Anomalies detected</span></div><div class="stat-value">{{ stats.suspicious_activities }}</div></div>
+  <div class="card stat-card tone-red animate-in delay-2"><div class="stat-top"><span class="stat-label">Critical alerts</span></div><div class="stat-value">{{ stats.critical_alerts }}</div></div>
+  <div class="card stat-card tone-green animate-in delay-3"><div class="stat-top"><span class="stat-label">Mean risk score</span></div><div class="stat-value">{{ stats.average_risk_score }}</div></div>
+</div>
+<div class="grid grid-2 mb-4">
+  <section class="card animate-in">
+    <div class="card-head"><div><h3>Daily activity volume</h3><div class="sub">All events vs. AI-flagged events</div></div></div>
+    <div class="card-body"><div class="chart-box"><canvas id="activityChart"></canvas></div></div>
+  </section>
+  <section class="card animate-in delay-1">
+    <div class="card-head"><div><h3>Activity type breakdown</h3><div class="sub">Distribution of recorded event categories</div></div></div>
+    <div class="card-body"><div class="chart-box"><canvas id="typesChart"></canvas></div></div>
+  </section>
+</div>
+<div class="grid grid-2">
+  <section class="card animate-in">
+    <div class="card-head"><div><h3>Alert severity mix</h3><div class="sub">All generated alerts by severity</div></div></div>
+    <div class="card-body"><div class="chart-box sm"><canvas id="severityChart"></canvas></div></div>
+  </section>
+  <section class="card animate-in delay-1">
+    <div class="card-head"><div><h3>Risk leaderboard</h3><div class="sub">Users with highest composite risk scores</div></div></div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>User</th><th>Department</th><th>Level</th><th class="right">Score</th></tr></thead>
+        <tbody>
+          {% for item in top_users %}
+          <tr><td class="strong">{{ item.display_name }}</td><td>{{ item.department }}</td><td><span class="badge {{ item.level_class }}">{{ item.level }}</span></td><td class="right">{{ item.score|floatformat:0 }}</td></tr>
+          {% empty %}
+          <tr><td colspan="4">{% include "includes/empty.html" %}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+{% endblock %}

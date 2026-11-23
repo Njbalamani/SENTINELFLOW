@@ -1,0 +1,37 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Sign in{% endblock %} · SENTINELFLOW</title>
+  <link rel="stylesheet" href="{% static 'css/sentinel.css' %}">
+</head>
+<body>
+<div class="auth-shell">
+  <section class="auth-visual">
+    <div class="brand">
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg>
+      </span>
+      <span><span class="brand-name">SENTINELFLOW</span><span class="brand-sub">Insider Threat Defense</span></span>
+    </div>
+    <div class="auth-hero">
+      <h1>See the threat<br>before it spreads.</h1>
+      <p>Behavioural intelligence that turns everyday activity signals into clear, actionable security decisions.</p>
+    </div>
+    <div class="auth-features">
+      <div class="auth-feature"><span><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 4 4L19 6"/></svg></span> Hybrid Isolation Forest + Random Forest detection</div>
+      <div class="auth-feature"><span><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 4 4L19 6"/></svg></span> Real-time risk scoring and alert triage</div>
+      <div class="auth-feature"><span><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 4 4L19 6"/></svg></span> Complete audit trail and investigation workflow</div>
+    </div>
+    <small style="position:relative;z-index:1">Authorised use only · All monitored data in this environment is synthetic.</small>
+  </section>
+  <section class="auth-panel">
+    <div class="auth-card animate-in">
+      {% block auth_content %}{% endblock %}
+      <div class="auth-footer">© {{ current_year }} SENTINELFLOW · MIT License</div>
+    </div>
+  </section>
+</div>
+</body>
+</html>

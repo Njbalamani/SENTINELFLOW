@@ -1,0 +1,137 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#070b14">
+  <title>{% block title %}{{ page_title|default:"Dashboard" }}{% endblock %} · SENTINELFLOW</title>
+  <link rel="stylesheet" href="{% static 'css/sentinel.css' %}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" defer></script>
+  <script src="{% static 'js/app.js' %}" defer></script>
+  {% block head %}{% endblock %}
+</head>
+<body>
+<div class="app-shell">
+  <div class="sidebar-overlay" aria-hidden="true"></div>
+  <aside class="sidebar" id="sidebar">
+    <a class="brand" href="{% url 'dashboard:home' %}">
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg>
+      </span>
+      <span><span class="brand-name">SENTINELFLOW</span><span class="brand-sub">Insider Threat Defense</span></span>
+    </a>
+
+    <div class="nav-label">Overview</div>
+    <nav class="nav">
+      <a class="nav-item" href="{% url 'dashboard:home' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Command Center
+      </a>
+      <a class="nav-item" href="{% url 'dashboard:analytics' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="m7 15 4-5 3 3 5-7"/></svg>
+        Behavioural Analytics
+      </a>
+    </nav>
+
+    <div class="nav-label">Operations</div>
+    <nav class="nav">
+      <a class="nav-item" href="{% url 'monitoring:list' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 3v3m0 12v3M3 12h3m12 0h3"/></svg>
+        Activity Monitor
+      </a>
+      <a class="nav-item" href="{% url 'detection:list' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3 4 6v5c0 5 3.4 9 8 10 4.6-1 8-5 8-10V6l-8-3Z"/><path d="M12 8v5m0 3h.01"/></svg>
+        AI Detections
+      </a>
+      <a class="nav-item" href="{% url 'detection:risk-list' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3 3 20h18L12 3Z"/><path d="M12 9v5m0 3h.01"/></svg>
+        Risk Profiles
+      </a>
+      <a class="nav-item" href="{% url 'alerts:list' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>
+        Security Alerts
+        {% if open_alert_count %}<span class="nav-count">{{ open_alert_count }}</span>{% endif %}
+      </a>
+      <a class="nav-item" href="{% url 'investigation:list' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4M8.5 11h5m-2.5-2.5v5"/></svg>
+        Investigations
+      </a>
+    </nav>
+
+    <div class="nav-label">System</div>
+    <nav class="nav">
+      <a class="nav-item" href="{% url 'reports:list' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z"/><path d="M14 3v5h5M9 13h6m-6 4h6"/></svg>
+        Reports
+      </a>
+      <a class="nav-item" href="{% url 'accounts:profile' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+        My Profile
+      </a>
+      {% if is_admin %}
+      <a class="nav-item" href="{% url 'accounts:users' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M17 11a3 3 0 1 0-1-5.8M17 14a5 5 0 0 1 4 5"/></svg>
+        User Management
+      </a>
+      <a class="nav-item" href="{% url 'detection:models' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8m-8 4h8m-8 4h5"/></svg>
+        ML Models
+      </a>
+      <a class="nav-item" href="{% url 'core:audit' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v3m0 12v3M5.6 5.6l2.1 2.1m8.6 8.6 2.1 2.1M3 12h3m12 0h3M5.6 18.4l2.1-2.1m8.6-8.6 2.1-2.1"/><circle cx="12" cy="12" r="3"/></svg>
+        Audit Trail
+      </a>
+      {% endif %}
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="status-line"><span class="pulse"></span> Detection engine online</div>
+      <div class="status-line" style="margin-top:6px">Synthetic monitoring environment · v{{ app_version }}</div>
+    </div>
+  </aside>
+
+  <main class="main-wrap">
+    <header class="topbar">
+      <button class="menu-toggle" type="button" aria-label="Toggle navigation">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <div>
+        <div class="crumb">SENTINELFLOW / {% block breadcrumb %}Operations{% endblock %}</div>
+        <div class="topbar-title">{% block page_title %}{{ page_title|default:"Command Center" }}{% endblock %}</div>
+      </div>
+      <div class="topbar-actions">
+        <a href="{% url 'alerts:list' %}" class="icon-btn" title="Open alerts" aria-label="Open alerts">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>
+          {% if open_alert_count %}<span class="dot"></span>{% endif %}
+        </a>
+        <div class="dropdown">
+          <button type="button" class="user-chip" data-dropdown-toggle>
+            <span class="avatar">{{ user.username|slice:":2"|upper }}</span>
+            <span class="user-meta"><strong>{{ user.display_name|default:user.username }}</strong><span>{{ user.role }}</span></span>
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="dropdown-menu">
+            <a href="{% url 'accounts:profile' %}">Profile settings</a>
+            <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}
+              <button type="submit">Sign out</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert {{ message.tags|default:'info' }} animate-in" data-dismiss-alert>
+            {{ message }}<button type="button" class="alert-action" aria-label="Dismiss">×</button>
+          </div>
+        {% endfor %}
+      {% endif %}
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+</div>
+{% block scripts %}{% endblock %}
+</body>
+</html>
