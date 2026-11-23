@@ -15,6 +15,8 @@ All notable changes to SENTINELFLOW are documented here. Format follows [Keep a 
 - `scripts/smoke_check.py` for end-to-end route verification against a seeded database.
 - Architecture, ER diagram, API and deployment documentation.
 - This changelog.
+- Fully rebuilt root and application READMEs with all Mermaid diagrams, full installation steps, requirements tables, command reference, API examples, troubleshooting, and embedded MIT license.
+- MIT copyright updated to **N J Bala Manikantan**.
 
 ### Fixed
 - `/audit/` route previously resolved to `/audit/audit/`; it now resolves correctly.
